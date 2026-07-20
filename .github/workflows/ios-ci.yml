@@ -40,9 +40,9 @@ jobs:
             -scheme Pulse \
             -configuration Debug \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
+            -destination 'generic/platform=iOS Simulator' \
             CODE_SIGNING_ALLOWED=NO \
-            clean build | tee xcodebuild.log
+            clean build 2>&1 | tee xcodebuild.log
 
       - name: Upload build log
         if: always()
