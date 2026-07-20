@@ -6,7 +6,7 @@ struct PulseApp: App {
 
     var body: some Scene {
         WindowGroup {
-            CommandCenterView()
+            RootView()
                 .environmentObject(store)
                 .preferredColorScheme(.dark)
         }
