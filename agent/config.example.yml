@@ -1,0 +1,13 @@
+endpoints:
+  - id: belani-home
+    name: Belani Family
+    url: https://www.belanifamily.com/
+    expected_status: 200
+
+  - id: etsy-connector
+    name: Etsy Connector
+    url: https://www.belanifamily.com/etsy-connector/health
+    expected_status: 200
+    expected_text: ok
+
+  # Add Cortex and Mission Control health URLs when their routes are confirmed.
