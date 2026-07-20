@@ -68,11 +68,26 @@ final class PulseStore: ObservableObject {
             connectionMessage = "Demo mode · live agent unavailable"
         }
     }
+
+    func restoreDemo() {
+        snapshot = .demo
+        connectionMessage = "Demo telemetry"
+    }
+
+    func simulateIncident(serviceID: String) {
+        let services = snapshot.services.map { service in
+            guard service.id == serviceID else { return service }
+            return ServiceHealth(id: service.id, name: service.name, status: .offline, latencyMs: nil, detail: "Simulated outage — production was not touched")
+        }
+        let incident = Incident(id: UUID(), occurredAt: .now, severity: .critical, title: "Simulated service outage", detail: "Chaos Lab safely marked \(serviceID) offline in local app state")
+        snapshot = PulseSnapshot(generatedAt: .now, score: max(0, snapshot.score - 28), host: snapshot.host, services: services, incidents: [incident] + snapshot.incidents)
+        connectionMessage = "Chaos simulation active"
+    }
 }
 
 struct PulseAPI {
     private var baseURL: URL? {
-        guard let value = UserDefaults.standard.string(forKey: "pulse.agentURL") else { return nil }
+        guard let value = UserDefaults.standard.string(forKey: "pulse.agentURL"), !value.isEmpty else { return nil }
         return URL(string: value)
     }
 
@@ -80,7 +95,7 @@ struct PulseAPI {
         guard let baseURL else { throw URLError(.badURL) }
         var request = URLRequest(url: baseURL.appending(path: "api/v1/snapshot"))
         request.timeoutInterval = 10
-        if let token = UserDefaults.standard.string(forKey: "pulse.token"), !token.isEmpty {
+        if let token = KeychainStore.read("pulse.agentToken"), !token.isEmpty {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
         let (data, response) = try await URLSession.shared.data(for: request)
