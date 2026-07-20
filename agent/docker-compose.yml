@@ -1,0 +1,13 @@
+services:
+  pulse-agent:
+    build: .
+    container_name: pulse-agent
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "127.0.0.1:8090:8090"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config.yml:/app/config.yml:ro
+    security_opt:
+      - no-new-privileges:true
